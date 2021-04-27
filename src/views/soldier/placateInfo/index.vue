@@ -1,230 +1,93 @@
 <template>
   <div class="app-container">
-    <el-form
-      :model="queryParams"
-      ref="queryForm"
-      :inline="true"
-      v-show="showSearch"
-      label-width="68px"
-    >
-      <el-form-item label="姓名" prop="name">
-        <el-input
-          v-model="queryParams.name"
-          placeholder="请输入姓名"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="身份证" prop="idCard">
-        <el-input
-          v-model="queryParams.idCard"
-          placeholder="请输入身份证"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="优抚级别" prop="level">
-        <el-select
-          v-model="queryParams.level"
-          placeholder="请选择优抚级别"
-          clearable
-          size="small"
-        >
-          <el-option
-            v-for="dict in levelOptions"
-            :key="dict.dictValue"
-            :label="dict.dictLabel"
-            :value="dict.dictValue"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button
-          type="cyan"
-          icon="el-icon-search"
-          size="mini"
-          @click="handleQuery"
-          >搜索</el-button
-        >
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery"
-          >重置</el-button
-        >
-      </el-form-item>
-    </el-form>
-
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['soldier:placateInfo:add']"
-          >新增</el-button
-        >
+    <el-row :gutter="20">
+      <el-col :span="4" :xs="24">
+        <div class="head-container">
+          <el-input v-model="deptName" placeholder="请输入部门名称" clearable size="mini" prefix-icon="el-icon-search" style="margin-bottom: 20px" />
+        </div>
+        <div class="head-container" style="height: 81vh; overflow-y: scroll">
+          <el-tree :data="deptOptions" :props="defaultProps" :expand-on-click-node="false" :filter-node-method="filterNode" ref="tree" default-expand-all @node-click="handleNodeClick" />
+        </div>
       </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['soldier:placateInfo:edit']"
-          >修改</el-button
-        >
+      <el-col :span="20" :xs="24">
+        <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
+          <el-form-item label="姓名" prop="name">
+            <el-input v-model="queryParams.name" placeholder="请输入姓名" clearable size="small" @keyup.enter.native="handleQuery" />
+          </el-form-item>
+          <el-form-item label="身份证" prop="idCard">
+            <el-input v-model="queryParams.idCard" placeholder="请输入身份证" clearable size="small" @keyup.enter.native="handleQuery" />
+          </el-form-item>
+          <el-form-item label="优抚级别" prop="level">
+            <el-select v-model="queryParams.level" placeholder="请选择优抚级别" clearable size="small">
+              <el-option v-for="dict in levelOptions" :key="dict.dictValue" :label="dict.dictLabel" :value="dict.dictValue" />
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+          </el-form-item>
+        </el-form>
+        <el-row :gutter="10" class="mb8">
+          <el-col :span="1.5">
+            <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd" v-hasPermi="['soldier:placateInfo:add']">新增</el-button>
+          </el-col>
+          <el-col :span="1.5">
+            <el-button type="success" icon="el-icon-edit" size="mini" :disabled="single" @click="handleUpdate" v-hasPermi="['soldier:placateInfo:edit']">修改</el-button>
+          </el-col>
+          <el-col :span="1.5">
+            <el-button type="danger" icon="el-icon-delete" size="mini" :disabled="multiple" @click="handleDelete" v-hasPermi="['soldier:placateInfo:remove']">删除</el-button>
+          </el-col>
+          <el-col :span="1.5">
+            <el-button type="warning" icon="el-icon-download" size="mini" @click="handleExport" v-hasPermi="['soldier:placateInfo:export']">导出</el-button>
+          </el-col>
+          <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+        </el-row>
+        <el-table v-loading="loading" :data="placateInfoList" @selection-change="handleSelectionChange">
+          <el-table-column type="selection" width="55" align="center" />
+          <el-table-column label="姓名" align="center" prop="staffName" />
+          <el-table-column label="身份证" align="center" prop="idCard" />
+          <el-table-column label="性别" align="center" prop="sex" :formatter="sexFormat" />
+          <el-table-column label="出生日期" align="center" prop="birthday" width="180">
+            <template slot-scope="scope">
+              <span>{{ parseTimeDate(scope.row.birthday, "{y}-{m}-{d}") }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="优抚级别" align="center" prop="level" :formatter="levelFormat" />
+          <el-table-column label="优抚类别" align="center" prop="type" :formatter="typeFormat" />
+          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+            <template slot-scope="scope">
+              <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)" v-hasPermi="['soldier:placateInfo:edit']">修改</el-button>
+              <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)" v-hasPermi="['soldier:placateInfo:remove']">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['soldier:placateInfo:remove']"
-          >删除</el-button
-        >
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['soldier:placateInfo:export']"
-          >导出</el-button
-        >
-      </el-col>
-      <right-toolbar
-        :showSearch.sync="showSearch"
-        @queryTable="getList"
-      ></right-toolbar>
     </el-row>
-
-    <el-table
-      v-loading="loading"
-      :data="placateInfoList"
-      @selection-change="handleSelectionChange"
-    >
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="姓名" align="center" prop="staffName" />
-      <el-table-column label="身份证" align="center" prop="idCard" />
-      <el-table-column
-        label="性别"
-        align="center"
-        prop="sex"
-        :formatter="sexFormat"
-      />
-      <el-table-column
-        label="出生日期"
-        align="center"
-        prop="birthday"
-        width="180"
-      >
-        <template slot-scope="scope">
-          <span>{{ parseTimeDate(scope.row.birthday, "{y}-{m}-{d}") }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="优抚级别"
-        align="center"
-        prop="level"
-        :formatter="levelFormat"
-      />
-      <el-table-column
-        label="优抚类别"
-        align="center"
-        prop="type"
-        :formatter="typeFormat"
-      />
-      <el-table-column
-        label="操作"
-        align="center"
-        class-name="small-padding fixed-width"
-      >
-        <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['soldier:placateInfo:edit']"
-            >修改</el-button
-          >
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['soldier:placateInfo:remove']"
-            >删除</el-button
-          >
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <pagination
-      v-show="total > 0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
-
+    <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" @pagination="getList" />
     <!-- 添加或修改优抚信息管理对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="人员信息" prop="staffId">
           <el-select v-model="form.staffId" filterable placeholder="请选择">
-            <el-option
-              v-for="item in idCardList"
-              :key="item.staffId"
-              :label="item.name + '-' + item.idCard"
-              :value="item.staffId"
-            >
+            <el-option v-for="item in idCardList" :key="item.staffId" :label="item.name + '-' + item.idCard" :value="item.staffId">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="政策列表" prop="placatePolicyId">
-          <el-select
-            v-model="form.placatePolicyId"
-            filterable
-            placeholder="请选择"
-          >
-            <el-option
-              v-for="item in placatePolicyIdList"
-              :key="item.placatePolicyId"
-              :label="item.title"
-              :value="item.placatePolicyId"
-            >
+          <el-select v-model="form.placatePolicyId" filterable placeholder="请选择">
+            <el-option v-for="item in placatePolicyIdList" :key="item.placatePolicyId" :label="item.title" :value="item.placatePolicyId">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="优抚类别" prop="type">
-          <el-select
-            v-model="form.type"
-            filterable
-            placeholder="请选择"
-          >
-            <el-option
-              v-for="item in placateTypeList"
-              :key="item.dictSort"
-              :label="item.dictLabel"
-              :value="item.dictSort"
-            >
+          <el-select v-model="form.type" filterable placeholder="请选择">
+            <el-option v-for="item in placateTypeList" :key="item.dictSort" :label="item.dictLabel" :value="item.dictSort">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="优抚级别" prop="level">
           <el-select v-model="form.level" placeholder="请选择优抚级别">
-            <el-option
-              v-for="dict in levelOptions"
-              :key="dict.dictValue"
-              :label="dict.dictLabel"
-              :value="parseInt(dict.dictValue)"
-            ></el-option>
+            <el-option v-for="dict in levelOptions" :key="dict.dictValue" :label="dict.dictLabel" :value="parseInt(dict.dictValue)"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -235,7 +98,6 @@
     </el-dialog>
   </div>
 </template>
-
 <script>
 import {
   listPlacateInfo,
@@ -247,11 +109,27 @@ import {
 } from "@/api/soldier/placateInfo";
 import { listPlacatePolicy } from "@/api/soldier/placatePolicy";
 import { listStaffBase } from "@/api/soldier/staffBase";
+
+import { treeselect } from "@/api/system/dept";
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+import { getToken } from "@/utils/auth";
+import Cookies from "js-cookie"; //引用
+import axios from "axios";
+import { Message } from "element-ui";
 export default {
   name: "PlacateInfo",
   components: {},
   data() {
     return {
+       // 部门树选项
+      deptOptions: undefined,
+      // 部门名称
+      deptName: undefined,
+      defaultProps: {
+        children: "children",
+        label: "label",
+      },
       // 优抚级别列表
       levelOptions: [],
       // 人员身份证号信息数组
@@ -259,7 +137,7 @@ export default {
       // 政策信息列表
       placatePolicyIdList: [],
       // 优抚类别列表
-      placateTypeList:[],
+      placateTypeList: [],
       // 遮罩层
       loading: true,
       // 选中数组
@@ -288,6 +166,7 @@ export default {
         level: null,
         name: null,
         idCard: null,
+        deptId: null,
       },
       // 表单参数
       form: {},
@@ -298,6 +177,7 @@ export default {
   created() {
     this.getList();
     this.getUserList();
+    this.getTreeselect();
     this.getPlacatePolicyList();
     this.getDicts("sys_user_sex").then((response) => {
       this.sexOptions = response.data;
@@ -306,11 +186,26 @@ export default {
       this.levelOptions = response.data;
     });
     this.getDicts("tw_placate_type").then((response) => {
-      console.log(response)
       this.placateTypeList = response.data;
     });
   },
   methods: {
+      /** 查询部门下拉树结构 */
+    getTreeselect() {
+      treeselect().then((response) => {
+        this.deptOptions = response.data;
+      });
+    },
+    // 筛选节点
+    filterNode(value, data) {
+      if (!value) return true;
+      return data.label.indexOf(value) !== -1;
+    },
+    // 节点单击事件
+    handleNodeClick(data) {
+      this.queryParams.deptId = data.id;
+      this.getList();
+    },
     parseTimeDate(time) {
       if (arguments.length === 0 || !time) {
         return null;
@@ -545,15 +440,14 @@ export default {
     handleDelete(row) {
       const placateInfoIds = row.placateInfoId || this.ids;
       this.$confirm(
-        '是否确认删除优抚信息管理编号为"' + placateInfoIds + '"的数据项?',
-        "警告",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
-      )
-        .then(function () {
+          '是否确认删除优抚信息管理编号为"' + placateInfoIds + '"的数据项?',
+          "警告", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+          }
+        )
+        .then(function() {
           return delPlacateInfo(placateInfoIds);
         })
         .then(() => {
@@ -565,11 +459,11 @@ export default {
     handleExport() {
       const queryParams = this.queryParams;
       this.$confirm("是否确认导出所有优抚信息管理数据项?", "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(function () {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        })
+        .then(function() {
           return exportPlacateInfo(queryParams);
         })
         .then((response) => {
@@ -578,9 +472,11 @@ export default {
     },
   },
 };
+
 </script>
 <style scoped>
 .el-select {
   width: 100%;
 }
+
 </style>

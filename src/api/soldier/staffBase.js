@@ -25,6 +25,21 @@ export function getStaffBase(staffId) {
     method: 'get'
   })
 }
+// 查询人员基础信息详细 新
+export function getStaffBaseFile(staffId) {
+  return request({
+    url: '/soldier/staffBaseFile/' + staffId,
+    method: 'get'
+  })
+}
+// 修改人员基础信息新
+export function updateStaffBaseFile(data) {
+  return request({
+    url: '/soldier/staffBaseFile',
+    method: 'put',
+    data: data
+  })
+}
 
 // 新增人员基础信息
 export function addStaffBase(data) {

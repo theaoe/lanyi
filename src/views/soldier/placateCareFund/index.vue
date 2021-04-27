@@ -1,154 +1,73 @@
 <template>
   <div class="app-container">
-    <el-form
-      :model="queryParams"
-      ref="queryForm"
-      :inline="true"
-      v-show="showSearch"
-      label-width="68px"
-    >
-      <el-form-item label="人员姓名" prop="staffName">
-        <el-input
-          v-model="queryParams.staffName"
-          placeholder="请输入人员姓名"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button
-          type="cyan"
-          icon="el-icon-search"
-          size="mini"
-          @click="handleQuery"
-          >搜索</el-button
-        >
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery"
-          >重置</el-button
-        >
-      </el-form-item>
-    </el-form>
-
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['soldier:placateCareFund:add']"
-          >新增</el-button
-        >
+    <el-row :gutter="20">
+      <el-col :span="4" :xs="24">
+        <div class="head-container">
+          <el-input v-model="deptName" placeholder="请输入部门名称" clearable size="mini" prefix-icon="el-icon-search" style="margin-bottom: 20px" />
+        </div>
+        <div class="head-container" style="height: 81vh; overflow-y: scroll">
+          <el-tree :data="deptOptions" :props="defaultProps" :expand-on-click-node="false" :filter-node-method="filterNode" ref="tree" default-expand-all @node-click="handleNodeClick" />
+        </div>
       </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['soldier:placateCareFund:edit']"
-          >修改</el-button
-        >
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['soldier:placateCareFund:remove']"
-          >删除</el-button
-        >
-      </el-col>
-      <!-- <el-col :span="1.5">
-        <el-button
-          type="warning"
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['soldier:placateCareFund:export']"
-          >导出</el-button
-        >
-      </el-col> -->
-      <right-toolbar
-        :showSearch.sync="showSearch"
-        @queryTable="getList"
-      ></right-toolbar>
-    </el-row>
-
-    <el-table
-      v-loading="loading"
-      :data="placateCareFundList"
-      @selection-change="handleSelectionChange"
-    >
+      <el-col :span="20" :xs="24">
+      <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
+        <el-form-item label="人员姓名" prop="staffName">
+          <el-input v-model="queryParams.staffName" placeholder="请输入人员姓名" clearable size="small" @keyup.enter.native="handleQuery" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+          <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
+      <el-row :gutter="10" class="mb8">
+        <el-col :span="1.5">
+          <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd" v-hasPermi="['soldier:placateCareFund:add']">新增</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="success" icon="el-icon-edit" size="mini" :disabled="single" @click="handleUpdate" v-hasPermi="['soldier:placateCareFund:edit']">修改</el-button>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button type="danger" icon="el-icon-delete" size="mini" :disabled="multiple" @click="handleDelete" v-hasPermi="['soldier:placateCareFund:remove']">删除</el-button>
+        </el-col>
+        <!-- <el-col :span="1.5">
+          <el-button
+            type="warning"
+            icon="el-icon-download"
+            size="mini"
+            @click="handleExport"
+            v-hasPermi="['soldier:placateCareFund:export']"
+            >导出</el-button
+          >
+        </el-col> -->
+        <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      </el-row>
+    
+    <el-table v-loading="loading" :data="placateCareFundList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="姓名" align="center" prop="staffName" />
       <el-table-column label="身份证号" align="center" prop="idCard" />
-      <el-table-column
-        label="关爱基金申请表"
-        align="center"
-        prop="careFundFile"
-      >
+      <el-table-column label="关爱基金申请表" align="center" prop="careFundFile">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-paperclip"
-            @click="preview(scope.row)"
-            v-hasPermi="['soldier:placateCareFund:edit']"
-            >预览</el-button
-          >
+          <el-button size="mini" type="text" icon="el-icon-paperclip" @click="preview(scope.row)" v-hasPermi="['soldier:placateCareFund:edit']">预览</el-button>
         </template>
       </el-table-column>
       <el-table-column label="发放金额" align="center" prop="money" />
-      <el-table-column
-        label="操作"
-        align="center"
-        class-name="small-padding fixed-width"
-      >
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['soldier:placateCareFund:edit']"
-            >修改</el-button
-          >
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['soldier:placateCareFund:remove']"
-            >删除</el-button
-          >
+          <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)" v-hasPermi="['soldier:placateCareFund:edit']">修改</el-button>
+          <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)" v-hasPermi="['soldier:placateCareFund:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-
-    <pagination
-      v-show="total > 0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
-
+    </el-col>
+    </el-row>
+    <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" @pagination="getList" />
     <!-- 添加或修改优抚关爱基金管理对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="130px">
         <el-form-item label="人员信息" prop="staffId">
           <el-select v-model="form.staffId" filterable placeholder="请选择">
-            <el-option
-              v-for="item in idCardList"
-              :key="item.staffId"
-              :label="item.name + '-' + item.idCard"
-              :value="item.staffId"
-            >
+            <el-option v-for="item in idCardList" :key="item.staffId" :label="item.name + '-' + item.idCard" :value="item.staffId">
             </el-option>
           </el-select>
         </el-form-item>
@@ -156,22 +75,9 @@
           <el-input v-model="form.money" placeholder="请输入发放金额" />
         </el-form-item>
         <el-form-item label="关爱基金申请表" prop="careFundFile">
-          <el-upload
-            :limit="1"
-            :action="fileAction"
-            :on-preview="previewFunction"
-            :before-upload="fieldBeforeUpload"
-            :on-success="handleFileSuccess"
-            :on-remove="removeFile"
-          >
+          <el-upload :limit="1" :action="fileAction" :on-preview="previewFunction" :before-upload="fieldBeforeUpload" :on-success="handleFileSuccess" :on-remove="removeFile">
             <el-input :hidden="true" v-model="form.careFundFile">
-              <el-button
-                slot="append"
-                type="success"
-                style="width: 110px; color: 12px"
-                icon="el-icon-upload"
-                >上传附件</el-button
-              >
+              <el-button slot="append" type="success" style="width: 110px; color: 12px" icon="el-icon-upload">上传附件</el-button>
             </el-input>
             <div class="el-upload__tip" style="color: red" slot="tip">
               提示：尽量上传“Word”或“PDF”格式文件！
@@ -186,7 +92,6 @@
     </el-dialog>
   </div>
 </template>
-
 <script>
 import {
   listPlacateCareFund,
@@ -199,11 +104,26 @@ import {
 import { getToken } from "@/utils/auth";
 import { listStaffBase } from "@/api/soldier/staffBase";
 
+import { treeselect } from "@/api/system/dept";
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+import Cookies from "js-cookie"; //引用
+import axios from "axios";
+import { Message } from "element-ui";
+
 export default {
   name: "PlacateCareFund",
   components: {},
   data() {
     return {
+      // 部门树选项
+      deptOptions: undefined,
+      // 部门名称
+      deptName: undefined,
+      defaultProps: {
+        children: "children",
+        label: "label",
+      },
       // 人员姓名信息数组
       // userNameList: [],
       // 人员身份证号信息数组
@@ -238,6 +158,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         staffName: null,
+        deptId: null,
       },
 
       // 表单参数
@@ -257,8 +178,25 @@ export default {
   created() {
     this.getList();
     this.getUserList();
+    this.getTreeselect();
   },
   methods: {
+     /** 查询部门下拉树结构 */
+    getTreeselect() {
+      treeselect().then((response) => {
+        this.deptOptions = response.data;
+      });
+    },
+    // 筛选节点
+    filterNode(value, data) {
+      if (!value) return true;
+      return data.label.indexOf(value) !== -1;
+    },
+    // 节点单击事件
+    handleNodeClick(data) {
+      this.queryParams.deptId = data.id;
+      this.getList();
+    },
     // 查询人员信息
     getUserList() {
       listStaffBase(this.queryParams)
@@ -355,7 +293,7 @@ export default {
       this.src = this.officeUrl + encodeURIComponent(file.response.url);
       this.form.careFundFile = this.src;
     },
-    removeFile(file){
+    removeFile(file) {
       this.form.careFundFile = ''
     },
     /** 提交按钮 */
@@ -382,17 +320,16 @@ export default {
     handleDelete(row) {
       const placateCareFundIds = row.placateCareFundId || this.ids;
       this.$confirm(
-        '是否确认删除优抚关爱基金管理编号为"' +
+          '是否确认删除优抚关爱基金管理编号为"' +
           placateCareFundIds +
           '"的数据项?',
-        "警告",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
-      )
-        .then(function () {
+          "警告", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+          }
+        )
+        .then(function() {
           return delPlacateCareFund(placateCareFundIds);
         })
         .then(() => {
@@ -404,11 +341,11 @@ export default {
     handleExport() {
       const queryParams = this.queryParams;
       this.$confirm("是否确认导出所有优抚关爱基金管理数据项?", "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(function () {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        })
+        .then(function() {
           return exportPlacateCareFund(queryParams);
         })
         .then((response) => {
@@ -417,9 +354,11 @@ export default {
     },
   },
 };
+
 </script>
 <style scoped>
 .el-select {
   width: 100%;
 }
+
 </style>

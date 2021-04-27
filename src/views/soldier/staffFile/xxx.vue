@@ -5,7 +5,7 @@
         <div class="head-container">
           <el-input v-model="deptName" placeholder="请输入部门名称" clearable size="mini" prefix-icon="el-icon-search" style="margin-bottom: 20px" />
         </div>
-        <div class="head-container" style="height: 90vh; overflow-y: scroll">
+        <div class="head-container" style="height: 81vh; overflow-y: scroll">
           <el-tree :data="deptOptions" :props="defaultProps" :expand-on-click-node="false" :filter-node-method="filterNode" ref="tree" default-expand-all @node-click="handleNodeClick" />
         </div>
       </el-col>
@@ -139,173 +139,83 @@
         <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" @pagination="getList" />
         <!-- 添加或修改人员基础信息对话框 -->
         <el-dialog title="人员档案管理" :visible.sync="open" width="1400px" top="10px" append-to-body>
-          <el-scrollbar class="scroll-box">
-            <el-row :gutter="0">
-              <el-col :span="14" style="margin: 5px;height:80vh;">
-                <div class="header-box">档案信息：</div>
-                <el-form ref="formData" :model="formData" :rules="rules" label-width="100px" size="mini">
-                  <el-col :span="8">
-                    <el-form-item label="档案编号" prop="fileNo" label-width="120px">{{formData.fileNo}}</el-form-item>
-                    <el-form-item label="档案托管单位" prop="fileUnit" label-width="120px">
-                      <el-input v-model="formData.fileUnit" placeholder="请输入" clearable :style="{ width: '10vw' }">
-                      </el-input>
-                    </el-form-item>
-                    <el-form-item label="第一类材料" prop="id" label-width="120px" :style="{width : '30vw'}">
-                      <div style="margin-bottom:10px;width:32vw;">请上传履历材料</div>
-                      <div class="showUpload">
-                        <el-upload :file-list="fieldList1" :action="fieldAction" :before-upload="fieldBeforeUpload" accept=".pdf" :on-preview="previewFunction" :on-success="successFunction1" :on-remove="handleRemove" :limit="10">
+          <el-row :gutter="0">
+            <el-col :span="15" style="margin: 5px; height: 88vh;box-shadow: 0px 1px 3px #e5e6e7;">
+              <div class="header-box">档案信息：</div>
+              <el-form ref="formData" :model="formData" :rules="rules" label-width="100px" size="mini">
+                <el-col :span="8">
+                  <el-form-item label="档案编号" prop="id" label-width="120px"></el-form-item>
+                  <el-form-item label="档案托管单位" prop="name" label-width="120px">
+                    <el-input v-model="formData.name" placeholder="请输入" clearable :style="{ width: '100%' }">
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="第一类材料" prop="id" label-width="120px">
+                      <div style="margin-bottom:10px;">请上传履历材料</div>
+                      <div>
+                          <el-upload :file-list="fieldList1" :action="fieldAction" :before-upload="fieldBeforeUpload" accept=".pdf" :on-preview="previewFunction" :on-success="successFunction1" :limit="1">
                           <el-tooltip class="item" effect="dark" content="入伍登记表" placement="bottom">
                             <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
                           </el-tooltip>
                         </el-upload>
                       </div>
-                    </el-form-item>
-                    <el-form-item label="第二类材料" prop="id" label-width="120px" :style="{width : '30vw'}">
-                      <div style="margin-bottom:10px;width:32vw;">请上传自传材料、报告个人有关事项材料</div>
-                      <div>
-                        <el-upload :file-list="fieldList2" :action="fieldAction" :before-upload="fieldBeforeUpload" accept=".pdf" :on-preview="previewFunction" :on-success="successFunction2" :limit="10">
-                          <el-tooltip class="item" effect="dark" content="自传材料、报告个人有关事项材料" placement="bottom">
-                            <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
-                          </el-tooltip>
-                        </el-upload>
-                      </div>
-                    </el-form-item>
-                    <el-form-item label="第三类材料" prop="id" label-width="120px" :style="{width : '30vw'}">
-                      <div style="margin-bottom:10px;width:32vw;">请上传考察、考核、鉴定材料、审核材料</div>
-                      <div>
-                        <el-upload :file-list="fieldList3" :action="fieldAction" :before-upload="fieldBeforeUpload" accept=".pdf" :on-preview="previewFunction" :on-success="successFunction3" :limit="10">
-                          <el-tooltip class="item" effect="dark" content="考察、考核、鉴定材料、审核材料" placement="bottom">
-                            <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
-                          </el-tooltip>
-                        </el-upload>
-                      </div>
-                    </el-form-item>
-                    <el-form-item label="第四类材料" prop="id" label-width="120px" :style="{width : '30vw'}">
-                      <div style="margin-bottom:10px;width:32vw;">请上传学历学位材料、职业（任职）资格和评（聘）专业技术职务（职称）材料、培训材料</div>
-                      <div>
-                        <el-upload :file-list="fieldList4" :action="fieldAction" :before-upload="fieldBeforeUpload" accept=".pdf" :on-preview="previewFunction" :on-success="successFunction4" :limit="10">
-                          <el-tooltip class="item" effect="dark" content="学历学位材料、职业（任职）资格和评（聘）专业技术职务（职称）材料、培训材料" placement="bottom">
-                            <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
-                          </el-tooltip>
-                        </el-upload>
-                      </div>
-                    </el-form-item>
-                    <el-form-item label="第五类材料" prop="id" label-width="120px" :style="{width : '30vw'}">
-                      <div style="margin-bottom:10px;width:32vw;">请上传政审材料、更改或认定姓名、民族籍贯、出生日期、入党入团时间、参加工作时间等材料</div>
-                      <div>
-                        <el-upload :file-list="fieldList5" :action="fieldAction" :before-upload="fieldBeforeUpload" accept=".pdf" :on-preview="previewFunction" :on-success="successFunction5" :limit="10">
-                          <el-tooltip class="item" effect="dark" content="入伍登记表" placement="bottom">
-                            <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
-                          </el-tooltip>
-                        </el-upload>
-                      </div>
-                    </el-form-item>
-                    <el-form-item label="第六类材料" prop="id" label-width="120px" :style="{width : '30vw'}">
-                      <div style="margin-bottom:10px;width:32vw;">请上传涉法违纪材料</div>
-                      <div>
-                        <el-upload :file-list="fieldList6" :action="fieldAction" :before-upload="fieldBeforeUpload" accept=".pdf" :on-preview="previewFunction" :on-success="successFunction6" :limit="10">
-                          <el-tooltip class="item" effect="dark" content="涉法违纪材料" placement="bottom">
-                            <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
-                          </el-tooltip>
-                        </el-upload>
-                      </div>
-                    </el-form-item>
-                    <el-form-item label="第七类材料" prop="id" label-width="120px" :style="{width : '30vw'}">
-                      <div style="margin-bottom:10px;width:32vw;">请上传表彰奖励材料</div>
-                      <div>
-                        <el-upload :file-list="fieldList7" :action="fieldAction" :before-upload="fieldBeforeUpload" accept=".pdf" :on-preview="previewFunction" :on-success="successFunction7" :limit="10">
-                          <el-tooltip class="item" effect="dark" content="表彰奖励材料" placement="bottom">
-                            <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
-                          </el-tooltip>
-                        </el-upload>
-                      </div>
-                    </el-form-item>
-                    <el-form-item label="第八类材料" prop="id" label-width="120px" :style="{width : '30vw'}">
-                      <div style="margin-bottom:10px;width:32vw;">请上传涉法违纪材料</div>
-                      <div>
-                        <el-upload :file-list="fieldList8" :action="fieldAction" :before-upload="fieldBeforeUpload" accept=".pdf" :on-preview="previewFunction" :on-success="successFunction8" :limit="10">
-                          <el-tooltip class="item" effect="dark" content="入伍登记表" placement="bottom">
-                            <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
-                          </el-tooltip>
-                        </el-upload>
-                      </div>
-                    </el-form-item>
-                    <el-form-item label="第九类材料" prop="id" label-width="120px" :style="{width : '30vw'}">
-                      <div style="margin-bottom:10px;width:32vw;">请上传工资待遇材料、录（聘）用、调动、任免、转业、退（离）休等材料</div>
-                      <div>
-                        <el-upload :file-list="fieldList9" :action="fieldAction" :before-upload="fieldBeforeUpload" accept=".pdf" :on-preview="previewFunction" :on-success="successFunction9" :limit="10">
-                          <el-tooltip class="item" effect="dark" content="工资待遇材料、录（聘）用、调动、任免、转业、退（离）休等材料" placement="bottom">
-                            <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
-                          </el-tooltip>
-                        </el-upload>
-                      </div>
-                    </el-form-item>
-                    <el-form-item label="第十类材料" prop="id" label-width="120px" :style="{width : '30vw'}">
-                      <div style="margin-bottom:10px;width:32vw;">请上传健康检查和处理工伤事故材料、治丧材料、干部人事档案报送、审核工作材料、其它材料</div>
-                      <div>
-                        <el-upload :file-list="fieldList10" :action="fieldAction" :before-upload="fieldBeforeUpload" accept=".pdf" :on-preview="previewFunction" :on-success="successFunction10" :limit="10">
-                          <el-tooltip class="item" effect="dark" content="健康检查和处理工伤事故材料、治丧材料、干部人事档案报送、审核工作材料、其它材料" placement="bottom">
-                            <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
-                          </el-tooltip>
-                        </el-upload>
-                      </div>
-                    </el-form-item>
+                  </el-form-item>
+                </el-col>
+                <el-row class="el-row1" :gutter="80">
+                  <el-col :span="6">
+                    
                   </el-col>
-                </el-form>
-              </el-col>
-              <el-col :span="9" style="margin: 5px; height: 80vh;float:right">
-                <div class="header_info" style="box-shadow: 0px 1px 3px #e5e6e7;margin-bottom:20px;">
+                </el-row>
+              </el-form>
+            </el-col>
+            <el-col :span="8" style="margin: 5px 30px 0px 0px; height: 100vh;">
+              <div class="header_info" style="box-shadow: 0px 1px 3px #e5e6e7;margin-bottom:20px;">  
                   <div class="header-box">人员基础信息</div>
                   <div class="header-box-info" style="overflow: hidden;font-size:18px;">
                     <el-form ref="formData" :model="formData" :rules="rules" label-width="100px" size="mini">
                       <el-col :span="12">
-                        <el-form-item label="姓名:" prop="name" label-width="120px">{{formData.name}}</el-form-item>
+                        <el-form-item label="姓名:" prop="id" label-width="120px">張三</el-form-item>
                       </el-col>
                       <el-col :span="12">
-                        <el-form-item label="身份证:" prop="idCard" label-width="100px">{{formData.idCard}}</el-form-item>
+                        <el-form-item label="身份证:" prop="id" label-width="120px">張三</el-form-item>
+                      </el-col>
+                       <el-col :span="12">
+                        <el-form-item label="归属单位:" prop="id" label-width="120px">張三</el-form-item>
                       </el-col>
                       <el-col :span="12">
-                        <el-form-item label="归属单位:" prop="deptId" label-width="120px">{{formData.deptId}}</el-form-item>
+                        <el-form-item label="出生日期:" prop="id" label-width="120px">張三</el-form-item>
                       </el-col>
                       <el-col :span="12">
-                        <el-form-item label="出生日期:" prop="birthday" label-width="100px">{{formData.birthday}}</el-form-item>
+                        <el-form-item label="性别:" prop="id" label-width="120px">張三</el-form-item>
+                      </el-col>
+                       <el-col :span="12">
+                        <el-form-item label="政治面貌:" prop="id" label-width="120px">張三</el-form-item>
                       </el-col>
                       <el-col :span="12">
-                        <el-form-item label="性别:" prop="sex" label-width="120px" :formatter="sexFormat">{{formData.sex}}</el-form-item>
-                      </el-col> 
-                      <el-col :span="12">
-                        <el-form-item label="政治面貌:" prop="politicalStatus" label-width="100px">{{formData.politicalStatus}}</el-form-item>
+                        <el-form-item label="文化程度:" prop="id" label-width="120px">張三</el-form-item>
+                      </el-col>
+                       <el-col :span="12">
+                        <el-form-item label="健康状况:" prop="id" label-width="120px">張三</el-form-item>
                       </el-col>
                       <el-col :span="12">
-                        <el-form-item label="文化程度:" prop="education" label-width="120px">{{formData.education}}</el-form-item>
+                        <el-form-item label="人员类别:" prop="id" label-width="120px">張三</el-form-item>
                       </el-col>
-                      <el-col :span="12">
-                        <el-form-item label="健康状况:" prop="healthCondition" label-width="100px">{{formData.healthCondition}}</el-form-item>
+                       <el-col :span="12">
+                        <el-form-item label="退役类别:" prop="id" label-width="120px">張三</el-form-item>
                       </el-col>
-                      <el-col :span="12">
-                        <el-form-item label="人员类别:" prop="serviceReserve" label-width="120px">{{formData.serviceReserve}}</el-form-item>
-                      </el-col>
-                      <el-col :span="12">
-                        <el-form-item label="退役类别:" prop="reserveStatus" label-width="100px">{{formData.reserveStatus}}</el-form-item>
-                      </el-col>
+                      
                     </el-form>
                   </div>
-                </div>
-                <div class="header-always">
-                  <div class="header-box">文件预览</div>
-                  <el-card shadow="always">
-                    <div style="height: 50vh">
-                      <iframe width="100%" height="100%" :src="src" />
-                    </div>
-                  </el-card>
-                </div>
-              </el-col>
-            </el-row>
-          </el-scrollbar>
-          <div slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="submitForm">确 定</el-button>
-            <el-button @click="upload.open = false">取 消</el-button>
-          </div>
+              </div>  
+              <div class="header-always">
+              <div class="header-box">文件预览</div>
+                <el-card shadow="always">
+                  <div style="height: 50vh">
+                    <iframe width="100%" height="100%" :src="src" />
+                  </div>
+                </el-card>
+              </div>
+            </el-col>
+          </el-row>
         </el-dialog>
       </el-col>
     </el-row>
@@ -320,7 +230,6 @@ import {
   getCounty,
   getTown,
   getVillage,
-  updateStaffFile
 } from "@/api/soldier/staffFile";
 import {
   listStaffBase,
@@ -329,7 +238,6 @@ import {
   addStaffBase,
   updateStaffBase,
   exportStaffBase,
-  updateStaffBaseFile,
   importTemplate,
 } from "@/api/soldier/staffBase";
 import {
@@ -337,16 +245,13 @@ import {
   validateMobile,
   validEmail,
 } from "@/utils/validate.js";
-
-import { treeselect , getDept } from "@/api/system/dept";
+import { treeselect } from "@/api/system/dept";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import { getToken } from "@/utils/auth";
 import Cookies from "js-cookie"; //引用
 import axios from "axios";
 import { Message } from "element-ui";
-import pdf from "vue-pdf";
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 export default {
   name: "StaffBase",
   components: {
@@ -354,13 +259,6 @@ export default {
   },
   data() {
     return {
-      tags: [
-        { name: '标签一' },
-        { name: '标签二' },
-        { name: '标签三' },
-        { name: '标签四' },
-        { name: '标签五' }
-      ],
       // 读卡按钮控制
       disavleOpen: false,
       disavleRead: true,
@@ -389,8 +287,7 @@ export default {
       // 弹出层标题
       title: "",
       // 是否显示弹出层
-      open: false,
-      // 查询归属单位字典
+      open: true,
       // 性别字典
       sexOptions: [],
       // 政治面貌字典
@@ -496,63 +393,411 @@ export default {
         reserveProfessionalName: null,
         location: null,
       },
-      fieldList1: [],
-      fieldList2: [],
-      fieldList3: [],
-      fieldList4: [],
-      fieldList5: [],
-      fieldList6: [],
-      fieldList7: [],
-      fieldList8: [],
-      fieldList9: [],
-      fieldList10: [],
-      fieldAction: "https://sxshsyjt.com:8080/common/upload",
-      officeUrl: "https://sxshsyjt.com:8012/onlinePreview?url=", // word预览地址
       // 表单参数
       formData: {
-        createBy: null,
-        createTime:null,
-        deptId:null,
-        field1: null,
-        field2: null,
-        field3: null,
-        field4: null,
-        field5: null,
-        field6: null,
-        field7: null,
-        field8: null,
-        field9: null,
-        field10: null,
-        fileNo: null,
-        fileUnit: null,
-        idCard: null,
-        name: null,
-        params: null,
-        remark: null,
-        searchValue: null,
-        staffBaseId: null,
-        staffFileId: null,
-        updateBy: null,
-        updateTime: null,
+        addrProvice: "",
+        addrCity: "",
+        addrCounty: "",
+        addrTown: "",
+        addrVillage: "",
+        preferentialNum: "",
+        name: "",
+        idCard: "",
+        birthday: "",
+        sex: "",
+        politicalStatus: "",
+        education: "",
+        healthCondition: "",
+        disabilityLevel: "",
+        job: "",
+        technicalExpertise: "",
+        address: "",
+        educationBackground: "",
+        degree: "",
+        major: "",
+        graduationSchool: "",
+        department: "",
+        vocationSkill: "",
+        telphone: "",
+        postCode: "",
+        nativePlace: "",
+        enArmyBeforePlace: "",
+        fatherName: "",
+        motherName: "",
+        spouseName: "",
+        fatherUnit: "",
+        motherUnit: "",
+        spouseUnit: "",
+        fatherJob: "",
+        motherJob: "",
+        spouseJob: "",
+        militaryRank: "",
+        veteransCertificate: "",
+        isReceiveVeteransMoney: "",
+        enlistmentTime: "",
+        enlistmentPlace: "",
+        militaryService: "",
+        enlistmentArmy: "",
+        veteransTime: "",
+        veteransLevel: "",
+        veteransArmy: "",
+        reserveStatus: "",
+        resettlementUnits: "",
+        serviceReserve: "",
+        reserveProfessionalName: "",
+        location: "",
       },
       // 表单校验
       rules: {
-        fileUnit: [
+        name: [
           { required: true, message: "请输入", trigger: "blur" },
           {
             min: 2,
             max: 20,
+            message: "长度在 3 到 10 个字符",
+            trigger: "blur",
+          },
+        ],
+        idCard: [{
+            required: true,
+            message: "请输入",
+            trigger: "change",
+          },
+          {
+            validator: validateIDCard,
+            message: "证件号码格式有误！",
+            trigger: "blur",
+          },
+        ],
+        birthday: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        sex: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        politicalStatus: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        education: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        healthCondition: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        disabilityLevel: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        job: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        technicalExpertise: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        address: [{
+            required: true,
+            message: "请输入",
+            trigger: "change",
+          },
+          {
+            min: 3,
+            max: 64,
+            message: "长度在 3 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        educationBackground: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        degree: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        major: [{
+            required: true,
+            message: "请输入",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        graduationSchool: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        department: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        vocationSkill: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        telphone: [{
+            required: true,
+            message: "请输入",
+            trigger: "blur",
+          },
+          {
+            validator: validateMobile,
+            message: "手机号格式有误！",
+            trigger: "blur",
+          },
+        ],
+        postCode: [{
+            required: true,
+            message: "请输入",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        nativePlace: [{
+            required: true,
+            message: "请输入入伍前户口所在地",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        enArmyBeforePlace: [{
+            required: true,
+            message: "请输入",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        fatherName: [{
+            message: "请输入",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        motherName: [{
+            message: "请输入职位",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        spouseName: [{
+            message: "请输入",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        fatherUnit: [{
+            message: "请输入",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        motherUnit: [{
+            message: "请输入",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        spouseUnit: [{
+            message: "请输入",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        fatherJob: [{
+            message: "请输入",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        motherJob: [{
+            message: "请输入",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        militaryRank: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        veteransCertificate: [{
+          required: true,
+          message: "请输入",
+          trigger: "blur",
+        }, ],
+        isReceiveVeteransMoney: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        enlistmentTime: [{
+            required: true,
+            message: "请输入",
+            trigger: "change",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        enlistmentPlace: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        militaryService: [{
+          required: true,
+          message: "请输入",
+          trigger: "change",
+        }, ],
+        enlistmentArmy: [{
+          required: true,
+          message: "请输入",
+          trigger: "blur",
+        }, ],
+        veteransTime: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        veteransLevel: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        veteransArmy: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        reserveStatus: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        resettlementUnits: [{
+            message: "请输入",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        serviceReserve: [{
+          required: true,
+          message: "请选择",
+          trigger: "change",
+        }, ],
+        reserveProfessionalName: [{
+            message: "请输入",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
+            message: "长度在 1 到 64 个字符",
+            trigger: "blur",
+          },
+        ],
+        location: [{
+            message: "请输入",
+            trigger: "blur",
+          },
+          {
+            min: 1,
+            max: 64,
             message: "长度在 1 到 64 个字符",
             trigger: "blur",
           },
         ],
       },
-      
     };
   },
   created() {
     this.getList();
-    // this.handleUpdate();
     this.getTreeselect();
     this.getDicts("sys_user_sex").then((response) => {
       this.sexOptions = response.data;
@@ -640,151 +885,13 @@ export default {
     });
   },
   methods: {
-    handleRemove(file, fileList) {
-        console.log(file, fileList);
-      },
-    /** 提交按钮 */
-
-    submitForm() {
-      console.log(this.fieldList1)
-      // this.formData.field1 = JSON.stringify(this.fieldList1);
-      // this.formData.field2 = JSON.stringify(this.fieldList2);
-      // this.formData.field3 = JSON.stringify(this.fieldList3);
-      // this.formData.field4 = JSON.stringify(this.fieldList4);
-      // this.formData.field5 = JSON.stringify(this.fieldList5);
-      // this.formData.field6 = JSON.stringify(this.fieldList6);
-      // this.formData.field7 = JSON.stringify(this.fieldList7);
-      // this.formData.field8 = JSON.stringify(this.fieldList8);
-      // this.formData.field9 = JSON.stringify(this.fieldList9);
-      // this.formData.field10 = JSON.stringify(this.fieldList10);
-      // this.formData.deptId = null;
-      // this.$refs["formData"].validate((valid) => {
-      //   if (valid) {
-      //       updateStaffBaseFile(this.formData).then((response) => {
-      //         this.msgSuccess("更新成功");
-      //         this.cancel();
-      //         this.$refs["formData"].resetFields();
-      //       });
-      //   }
-      // });
-    },
-    previewFunction(file) {
-      this.src = file.url;
-    },
-     successFunction1(response, file) {
-      this.src = this.officeUrl + encodeURIComponent(file.response.url);
-      let op = {
-        name: file.name,
-        url: this.src,
-
-      };
-      this.fieldList1.push(op);
-    },
-    successFunction2(response, file) {
-      this.src = this.officeUrl + encodeURIComponent(file.response.url);
-      let op = {
-        name: file.name,
-        url: this.src,
-      };
-      this.fieldList2.push(op);
-    },
-    successFunction3(response, file) {
-      this.src = this.officeUrl + encodeURIComponent(file.response.url);
-      let op = {
-        name: file.name,
-        url: this.src,
-      };
-      this.fieldList3.push(op);
-    },
-    successFunction4(response, file) {
-      this.src = this.officeUrl + encodeURIComponent(file.response.url);
-      let op = {
-        name: file.name,
-        url: this.src,
-      };
-      this.fieldList4.push(op);
-    },
-    successFunction5(response, file) {
-      this.src = this.officeUrl + encodeURIComponent(file.response.url);
-      let op = {
-        name: file.name,
-        url: this.src,
-      };
-      this.fieldList5.push(op);
-    },
-    successFunction6(response, file) {
-      this.src = this.officeUrl + encodeURIComponent(file.response.url);
-      let op = {
-        name: file.name,
-        url: this.src,
-      };
-      this.fieldList6.push(op);
-    },
-    successFunction7(response, file) {
-      this.src = this.officeUrl + encodeURIComponent(file.response.url);
-      let op = {
-        name: file.name,
-        url: this.src,
-      };
-      this.fieldList7.push(op);
-    },
-    successFunction8(response, file) {
-      this.src = this.officeUrl + encodeURIComponent(file.response.url);
-      let op = {
-        name: file.name,
-        url: this.src,
-      };
-      this.fieldList8.push(op);
-    },
-    successFunction9(response, file) {
-      this.src = this.officeUrl + encodeURIComponent(file.response.url);
-      let op = {
-        name: file.name,
-        url: this.src,
-      };
-      this.fieldList9.push(op);
-    },
-    successFunction10(response, file) {
-      this.src = this.officeUrl + encodeURIComponent(file.response.url);
-      let op = {
-        name: file.name,
-        url: this.src,
-      };
-      this.fieldList10.push(op);
-    },
-    fieldBeforeUpload(file) {
-      let isRightSize = file.size / 1024 / 1024 < 100;
-      if (!isRightSize) {
-        this.$message.error("文件大小超过 100MB");
-      }
-      return isRightSize;
-    },
-    /** 管理档案操作 */
+    /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      // const staffId = row.staffId;
-      var staffId = 31;
+      const staffId = row.staffId;
       getStaffBaseFile(staffId).then((response) => {
-          this.formData = response.data;
-          this.fieldList1 = JSON.parse(response.data.field1);
-          this.fieldList2 = JSON.parse(response.data.field2);
-          this.fieldList3 = JSON.parse(response.data.field3);
-          this.fieldList4 = JSON.parse(response.data.field4);
-          this.fieldList5 = JSON.parse(response.data.field5);
-          this.fieldList6 = JSON.parse(response.data.field6);
-          this.fieldList7 = JSON.parse(response.data.field7);
-          this.fieldList8 = JSON.parse(response.data.field8);
-          this.fieldList9 = JSON.parse(response.data.field9);
-          this.fieldList10 = JSON.parse(response.data.field10);
-          this.formData.birthday = row.birthday; 
-          this.formData.sex = this.sexFormat(row);
-
-          this.formData.politicalStatus = this.politicalStatusFormat(row);
-          this.formData.education = this.educationFormat(row); 
-          this.formData.healthCondition = this.healthConditionFormat(row)
-          this.formData.serviceReserve = this.serviceReserveFormat(row); 
-          this.formData.reserveStatus = this.reserveStatusFormatA(row); 
-          this.getDept(row.deptId)
+        console.log(response)
+        this.open = true;
       });
     },
     /** 查询人员基础信息列表 */
@@ -800,13 +907,6 @@ export default {
     getTreeselect() {
       treeselect().then((response) => {
         this.deptOptions = response.data;
-      });
-    },
-    /** 所属单位 */
-    getDept(id) {
-      getDept(id).then((response) => {
-          this.open = true;
-          this.formData.deptId = response.data.deptName;
       });
     },
     // 筛选节点
@@ -1036,10 +1136,6 @@ export default {
       this.resetForm("queryForm");
       this.handleQuery();
     },
-    // 提交上传文件
-    submitFileForm() {
-      this.$refs.upload.submit();
-    },
   },
 };
 
@@ -1061,9 +1157,4 @@ export default {
   color: #303133;
   background: #e5e6e7;
 }
-.scroll-box  .el-button{
-    width: 30%;
-    float: left;
-}
-
 </style>

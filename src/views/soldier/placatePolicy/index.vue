@@ -230,6 +230,7 @@
             :show-file-list="false"
             :before-upload="fieldBeforeUpload"
             :on-success="handleFileSuccess"
+            accept="image/jpg,image/jpeg,image/png"
           >
             <img v-if="imageUrl" :src="imageUrl" class="avatar" />
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -365,6 +366,7 @@ export default {
         updateBy: null,
         updateTime: null,
       };
+      this.imageUrl = '';
       this.resetForm("form");
     },
     /** 搜索按钮操作 */
@@ -395,6 +397,7 @@ export default {
       const placatePolicyId = row.placatePolicyId || this.ids;
       getPlacatePolicy(placatePolicyId).then((response) => {
         this.form = response.data;
+        this.imageUrl = response.data.filePath;
         this.open = true;
         this.title = "修改优抚政策管理";
       });

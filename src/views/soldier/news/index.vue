@@ -2,30 +2,18 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="标题" prop="title">
-        <el-input
-          v-model="queryParams.title"
-          placeholder="请输入标题"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.title" placeholder="请输入标题" clearable size="small" @keyup.enter.native="handleQuery" />
+      </el-form-item>
+      <el-form-item label="发布单位" prop="publishUnit">
+        <el-input v-model="queryParams.publishUnit" placeholder="请输入发布单位" clearable size="small" @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item label="发布时间" prop="publishTime">
-        <el-date-picker clearable size="small" style="width: 200px"
-          v-model="queryParams.publishTime"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="选择发布时间">
+        <el-date-picker clearable size="small" style="width: 200px" v-model="queryParams.publishTime" type="date" value-format="yyyy-MM-dd" placeholder="选择发布时间">
         </el-date-picker>
       </el-form-item>
       <el-form-item label="是否推送" prop="isPush">
         <el-select v-model="queryParams.isPush" placeholder="请选择是否推送" clearable size="small">
-          <el-option
-            v-for="dict in isPushOptions"
-            :key="dict.dictValue"
-            :label="dict.dictLabel"
-            :value="dict.dictValue"
-          />
+          <el-option v-for="dict in isPushOptions" :key="dict.dictValue" :label="dict.dictLabel" :value="dict.dictValue" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -33,49 +21,21 @@
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
-
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button
-          type="primary"
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['soldier:news:add']"
-        >新增</el-button>
+        <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd" v-hasPermi="['soldier:news:add']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="success"
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['soldier:news:edit']"
-        >修改</el-button>
+        <el-button type="success" icon="el-icon-edit" size="mini" :disabled="single" @click="handleUpdate" v-hasPermi="['soldier:news:edit']">修改</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="danger"
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['soldier:news:remove']"
-        >删除</el-button>
+        <el-button type="danger" icon="el-icon-delete" size="mini" :disabled="multiple" @click="handleDelete" v-hasPermi="['soldier:news:remove']">删除</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="warning"
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['soldier:news:export']"
-        >导出</el-button>
+        <el-button type="warning" icon="el-icon-download" size="mini" @click="handleExport" v-hasPermi="['soldier:news:export']">导出</el-button>
       </el-col>
-	  <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
-
     <el-table v-loading="loading" :data="newsList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="标题" align="center" prop="title" />
@@ -86,40 +46,20 @@
         </template>
       </el-table-column>
       <el-table-column label="是否推送" align="center" prop="isPush" :formatter="isPushFormat" />
-      <el-table-column label="新闻概述" align="center" prop="summary" show-overflow-tooltip/>
-      <el-table-column label="新闻简图" align="center" prop="filePath" >
+      <el-table-column label="新闻概述" align="center" prop="summary" show-overflow-tooltip />
+      <el-table-column label="新闻简图" align="center" prop="filePath">
         <template slot-scope="scope">
-           <el-image shape="square" style="width: 100px; height: 100px" fit="scale-down" :src="scope.row.filePath"></el-image>
-      </template>
+          <el-image shape="square" style="width: 100px; height: 100px" fit="scale-down" :src="scope.row.filePath"></el-image>
+        </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['soldier:news:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['soldier:news:remove']"
-          >删除</el-button>
+          <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)" v-hasPermi="['soldier:news:edit']">修改</el-button>
+          <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)" v-hasPermi="['soldier:news:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
-
+    <pagination v-show="total>0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" @pagination="getList" />
     <!-- 添加或修改新闻动态管理对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
@@ -130,34 +70,19 @@
           <el-input v-model="form.publishUnit" placeholder="请输入发布单位" />
         </el-form-item>
         <el-form-item label="发布时间" prop="publishTime">
-          <el-date-picker clearable size="small" style="width: 100%"
-            v-model="form.publishTime"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="选择发布时间">
+          <el-date-picker clearable size="small" style="width: 100%" v-model="form.publishTime" type="date" value-format="yyyy-MM-dd" placeholder="选择发布时间">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="是否推送" prop="isPush">
           <el-select v-model="form.isPush" placeholder="请选择是否推送">
-            <el-option
-              v-for="dict in isPushOptions"
-              :key="dict.dictValue"
-              :label="dict.dictLabel"
-              :value="parseInt(dict.dictValue)"
-            ></el-option>
+            <el-option v-for="dict in isPushOptions" :key="dict.dictValue" :label="dict.dictLabel" :value="parseInt(dict.dictValue)"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="新闻概述" prop="summary">
-          <el-input v-model="form.summary" placeholder="请输入新闻概述" type="textarea"/>
+          <el-input v-model="form.summary" placeholder="请输入新闻概述" type="textarea" />
         </el-form-item>
         <el-form-item label="新闻简图" prop="filePath">
-          <el-upload
-            class="avatar-uploader"
-            :action="fileAction"
-            :show-file-list="false"
-            :before-upload="fieldBeforeUpload"
-            :on-success="handleFileSuccess"
-          >
+          <el-upload class="avatar-uploader" accept="image/jpg,image/jpeg,image/png" :action="fileAction" :show-file-list="false" :before-upload="fieldBeforeUpload" :on-success="handleFileSuccess">
             <img v-if="imageUrl" :src="imageUrl" class="avatar" />
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
@@ -170,14 +95,12 @@
     </el-dialog>
   </div>
 </template>
-
 <script>
 import { listNews, getNews, delNews, addNews, updateNews, exportNews } from "@/api/soldier/news";
 
 export default {
   name: "News",
-  components: {
-  },
+  components: {},
   data() {
     return {
       // 上传的地址
@@ -208,6 +131,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         title: null,
+        publishUnit:null,
         publishTime: null,
         isPush: null,
       },
@@ -267,6 +191,7 @@ export default {
         updateBy: null,
         updateTime: null
       };
+      this.imageUrl = '';
       this.resetForm("form");
     },
     /** 搜索按钮操作 */
@@ -282,7 +207,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.newsId)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
@@ -293,16 +218,19 @@ export default {
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
+
       this.reset();
       const newsId = row.newsId || this.ids
       getNews(newsId).then(response => {
         this.form = response.data;
+        this.imageUrl = response.data.filePath;
         this.open = true;
         this.title = "修改新闻动态管理";
       });
     },
     // 文件上传前判断文件大小
     fieldBeforeUpload(file) {
+      console.log(file)
       let isRightSize = file.size / 1024 / 1024 < 10;
       if (!isRightSize) {
         this.$message.error("文件大小超过 10MB");
@@ -340,41 +268,44 @@ export default {
     handleDelete(row) {
       const newsIds = row.newsId || this.ids;
       this.$confirm('是否确认删除新闻动态管理编号为"' + newsIds + '"的数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return delNews(newsIds);
-        }).then(() => {
-          this.getList();
-          this.msgSuccess("删除成功");
-        })
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function() {
+        return delNews(newsIds);
+      }).then(() => {
+        this.getList();
+        this.msgSuccess("删除成功");
+      })
     },
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams;
       this.$confirm('是否确认导出所有新闻动态管理数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return exportNews(queryParams);
-        }).then(response => {
-          this.download(response.msg);
-        })
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function() {
+        return exportNews(queryParams);
+      }).then(response => {
+        this.download(response.msg);
+      })
     }
   }
 };
+
 </script>
 <style scoped>
 .el-select {
   width: 100%;
 }
+
 .avatar-uploader {
   width: 150px;
   height: 150px;
   border: 1px dashed #bbb;
 }
+
 .el-upload {
   border: 1px dashed #d9d9d9 !important;
   border-radius: 6px;
@@ -382,9 +313,11 @@ export default {
   position: relative;
   overflow: hidden;
 }
+
 .avatar-uploader .el-upload:hover {
   border-color: #409eff;
 }
+
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -393,9 +326,11 @@ export default {
   line-height: 150px;
   text-align: center;
 }
+
 .avatar {
   width: 150px;
   height: 150px;
   display: block;
 }
+
 </style>

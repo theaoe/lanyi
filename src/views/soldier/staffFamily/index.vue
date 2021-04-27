@@ -103,7 +103,7 @@
           >删除</el-button
         >
       </el-col>
-      <el-col :span="1.5">
+     <!--  <el-col :span="1.5">
         <el-button
           type="warning"
           icon="el-icon-download"
@@ -112,7 +112,7 @@
           v-hasPermi="['soldier:staffFamily:export']"
           >导出</el-button
         >
-      </el-col>
+      </el-col> -->
       <right-toolbar
         :showSearch.sync="showSearch"
         @queryTable="getList"
@@ -189,7 +189,7 @@
             <el-option
               v-for="item in idCardList"
               :key="item.staffId"
-              :label="item.name"
+              :label="item.name + ' - ' +  item.idCard"
               :value="item.staffId"
             >
             </el-option>

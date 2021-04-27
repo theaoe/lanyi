@@ -119,7 +119,6 @@ export const constantRoutes = [
     ]
   }
 ]
-console.log(constantRoutes)
 
 export default new Router({
   mode: 'history', // 去掉url中的#

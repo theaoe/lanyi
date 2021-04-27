@@ -238,3 +238,25 @@
 	position: relative;
 	float: right;
 }
+
+/* 新加 */
+.scroll-box .el-upload-list{
+    display: flex;
+    flex-wrap:wrap;
+}
+.scroll-box .el-upload-list .el-upload-list__item{
+	width:30%;
+	margin:10px 10px 10px 0px;
+	font-size:14px;
+	padding:5px;
+	border-radius:10px;
+	border:1px solid #e5e6e7;
+}
+.scroll-box .el-upload-list .el-upload-list__item label{
+	font-size:18px;
+	top:5px;
+}
+.scroll-box .el-upload-list .el-upload-list__item i{
+	font-size:18px;
+	top:12px;
+}
